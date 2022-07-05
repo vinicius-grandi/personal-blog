@@ -5,3 +5,10 @@ const { resolve } = require('path');
 config({
   path: resolve('.test.env'),
 });
+
+Object.defineProperty(window, 'location', {
+  configurable: true,
+  value: {
+    reload: jest.fn(),
+  },
+})

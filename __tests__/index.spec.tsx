@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import Home from '../pages/index';
 
 describe('Home', () => {
+  afterAll(() => jest.clearAllMocks());
   it('renders home page', () => {
     render(<Home />);
 
@@ -21,7 +22,7 @@ describe('Home', () => {
 
     const searchIcon = screen.getByRole('search', { name: /search/i });
 
-    userEvent.click(searchIcon);
+    await userEvent.click(searchIcon);
     const searchBox = await screen.findByRole('searchbox', {
       name: /searchbox/,
     });

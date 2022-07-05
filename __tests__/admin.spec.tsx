@@ -3,22 +3,10 @@ import userEvent from '@testing-library/user-event';
 import AdminPage from '../pages/admin';
 
 describe('Admin Page', () => {
-  const original = window.location;
-  beforeAll(() => {
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: {
-        reload: jest.fn(),
-      },
-    });
-  });
   afterAll(() => {
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: original,
-    });
+    afterAll(() => jest.clearAllMocks());
   });
-  it('renders a login form and log in when credentials are correct', () => {
+  it('renders a login form and log in when credentials are correct', async () => {
     render(<AdminPage />);
     const usernameInput = screen.getByLabelText('username');
     const passwordInput = screen.getByLabelText('password');
@@ -27,11 +15,12 @@ describe('Admin Page', () => {
     });
     expect(usernameInput).toBeInTheDocument();
     expect(passwordInput).toBeInTheDocument();
+    expect(submitButton).toBeInTheDocument();
 
     // typing values into inputs and submitting
-    userEvent.type(usernameInput, 'Vinicius');
-    userEvent.type(passwordInput, 'coolPassword');
-    userEvent.click(submitButton);
+    await userEvent.type(usernameInput, 'Vinicius');
+    await userEvent.type(passwordInput, 'coolPassword');
+    await userEvent.click(submitButton);
 
     // page reloads after successful login
     expect(window.location.reload).toHaveBeenCalled();

@@ -3,6 +3,9 @@ const { resolve } = require('path');
 
 config({
   path: resolve('.test.env'),
+  define: {
+    timestamps: false,
+  },
 });
 
 console.log(process.env.DATABASE_URL)

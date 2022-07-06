@@ -8,7 +8,7 @@ const db = {};
 const { config } = require('dotenv');
 
 config({
-  path: path.resolve('.test.env'),
+  path: path.resolve('./.test.env'),
 });
 
 let sequelize;

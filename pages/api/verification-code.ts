@@ -1,19 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 import { MailOptions } from 'nodemailer/lib/json-transport';
+import { productionInfo, testInfo } from '../../data/emailInfo';
+import connection from '../../lib/redis';
 
-const sendMail = (code: number) => {
+const sendMail = async (code: number) => {
+  const info = process.env.NODE_ENV === 'test' ? testInfo : productionInfo;
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    ...info,
     auth: {
-      type: 'OAuth2',
-      user: process.env.VALIDATOR_USER,
-      serviceClient: process.env.SERVICE_ID,
-      privateKey: process.env.SERVICE_KEY,
+      user: process.env.USER_EMAIL,
+      pass: process.env.USER_PASS,
     },
   });
+
   const mailOptions: MailOptions = {
-    from: 'validator3000',
+    from: process.env.VALIDATOR_USER,
     to: process.env.OWNER_EMAIL,
     subject: 'Email Confirmation',
     html: `
@@ -21,20 +23,30 @@ const sendMail = (code: number) => {
       <p>${code}</p>
     `,
   };
-
-  transporter.sendMail(mailOptions, (error) => {
-    if (error) {
-      console.error(error);
-    } else {
-      console.log('####### message sent ########');
-    }
-  });
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('#### EMAIL SENT :) ####');
+  } catch (err) {
+    console.error(err);
+  }
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    sendMail(Math.round(Math.random() * 10e5));
-  } else {
-    res.status(404).json({ message: "This route doesn't exist" });
+    const {
+      body: { username },
+    } = req;
+
+    if (await connection.get(username)) {
+      return res.json({ message: 'your code has already been sent!' });
+    }
+
+    const verificationCode = Math.round(Math.random() * 10e5);
+
+    await sendMail(verificationCode);
+    await connection.set(username, verificationCode, 'EX', 60 * 10);
+
+    return res.json({ message: 'verification code sent to email' });
   }
+  return res.status(404).json({ message: "This route doesn't exist" });
 }

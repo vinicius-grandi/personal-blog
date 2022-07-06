@@ -17,7 +17,7 @@ const testClient = (handler: NextApiHandler) => {
     false,
   );
 
-  return request(createServer(listener));
+  return request.agent(createServer(listener));
 };
 
 export default testClient;

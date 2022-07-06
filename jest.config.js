@@ -13,11 +13,12 @@ const customJestConfig = {
   // if using TypeScript with a baseUrl set to the root directory then you need the below for alias' to work
   moduleDirectories: ['node_modules', '<rootDir>/'],
   testEnvironment: 'jsdom',
+  setupFiles: ['core-js'],
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
   transform: {
-    '\/.[jt]sx?$': 'babel-jest',
+    '/.[jt]sx?$': 'babel-jest',
   },
-  preset: "ts-jest"
+  transformIgnorePatterns: ['./node_modules/(?!@ngrx|(?!deck.gl)|ng-dynamic)'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

@@ -1,13 +1,8 @@
 import { NextPage } from 'next';
 import { useState } from 'react';
 import styled from 'styled-components';
-import Info from '../components/signup/info';
-
-export type FormState = {
-  step: number;
-  username: string;
-  password: string;
-};
+import type { FormState } from '../components/signup/FormState.d';
+import StepHandler from '../components/signup/StepHandler';
 
 const Container = styled.div`
   background-color: #1c221f;
@@ -26,10 +21,18 @@ const SignupPage: NextPage = () => {
   });
   const nextStep = () => setFormState({ ...formState, step: formState.step + 1 });
   const prevStep = () => setFormState({ ...formState, step: formState.step - 1 });
+  const handleChange = (input: HTMLInputElement) => {
+    setFormState({ ...formState, [input.name]: input.value });
+  };
   return (
     <Container>
       <Form>
-        <Info nextStep={nextStep} />
+        <StepHandler
+          handleChange={handleChange}
+          step={formState.step}
+          nextStep={nextStep}
+          prevStep={prevStep}
+        />
       </Form>
     </Container>
   );

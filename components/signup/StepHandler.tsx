@@ -1,18 +1,21 @@
 import { NextPage } from 'next';
 import PropTypes from 'prop-types';
-import Info from './info';
+import Info from './Info';
 import Verification from './Verification';
 
 type StepProps = {
-  step?: number;
+  step: number;
   prevStep: () => void;
   nextStep: () => void;
+  handleChange: (input: HTMLInputElement) => void;
 };
 
-const StepHandler: NextPage<StepProps> = ({ step, nextStep, prevStep }) => {
+const StepHandler: NextPage<StepProps> = ({
+  step, handleChange, nextStep, prevStep,
+}) => {
   switch (step) {
     case 1:
-      return <Info nextStep={nextStep} />;
+      return <Info handleChange={handleChange} nextStep={nextStep} />;
     case 2:
       return <Verification nextStep={nextStep} prevStep={prevStep} />;
     default:
@@ -20,14 +23,11 @@ const StepHandler: NextPage<StepProps> = ({ step, nextStep, prevStep }) => {
   }
 };
 
-StepHandler.defaultProps = {
-  step: 1,
-};
-
 StepHandler.propTypes = {
   nextStep: PropTypes.func.isRequired,
   prevStep: PropTypes.func.isRequired,
-  step: PropTypes.number,
+  step: PropTypes.number.isRequired,
+  handleChange: PropTypes.func.isRequired,
 };
 
 export default StepHandler;

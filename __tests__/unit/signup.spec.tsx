@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SignupPage from '../pages/signup';
+import SignupPage from '../../pages/signup';
 
 describe('Sign Up Page', () => {
   afterAll(() => jest.clearAllMocks());

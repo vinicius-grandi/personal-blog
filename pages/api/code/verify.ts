@@ -1,9 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import type { Request, Response } from 'express';
-import logger from 'jet-logger';
-import getRateLimitMiddleware, { applyMiddleware } from '../../lib/rateLimit';
-import connection from '../../lib/redis';
-import sendMail from '../../lib/sendMail';
+import getRateLimitMiddleware, { applyMiddleware } from '../../../lib/rateLimit';
+import connection from '../../../lib/redis';
 
 const middleware = applyMiddleware(getRateLimitMiddleware());
 
@@ -18,9 +16,8 @@ export default async function handler(
     // rate limiter
     try {
       await middleware(req, res);
-    } catch (err) {
-      logger.err(err);
-      return res.status(429).json({ message: 'Too many requets' });
+    } catch {
+      return res.status(429).json({ message: 'Too many requests' });
     }
 
     const userCode = await connection.get(username);
@@ -28,20 +25,12 @@ export default async function handler(
     if (userCode && !code) {
       return res.json({ message: 'your code has already been sent!' });
     }
-    if (code === userCode) {
-      return res.json({ message: 'ok' });
-    }
-    if (code) {
+    if (code !== userCode) {
       return res.status(403).json({
         message: 'your code is incorrect!',
       });
     }
-    const verificationCode = Math.round(Math.random() * 10e5);
-
-    await sendMail(verificationCode);
-    await connection.set(username, verificationCode, 'EX', 60 * 10);
-
-    return res.json({ message: 'verification code sent to email' });
+    return res.json({ message: 'ok' });
   }
   return res.status(404).json({ message: "This route doesn't exist" });
 }

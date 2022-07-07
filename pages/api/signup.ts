@@ -1,12 +1,25 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
+import logger from 'jet-logger';
 import db from '../../db/models';
+import connection from '../../lib/redis';
 
 const { User } = db as any;
 
 export default withIronSessionApiRoute(
   async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { username, password, code } = req.body;
+      if (!username || !password || !code) {
+        return res.status(400).json({
+          message: 'bad request',
+        });
+      }
+      const userCode = await connection.get(username);
+
+      if (userCode !== code) {
+        return res.status(401).json({ message: 'not authorized' });
+      }
+
       const [user, created] = await User.findOrCreate({
         where: { username },
         defaults: {
@@ -25,7 +38,7 @@ export default withIronSessionApiRoute(
       await req.session.save();
       return res.json(user);
     } catch (error) {
-      console.error(error);
+      logger.err(error);
       return res.status(500).json({
         message: 'internal server error',
       });

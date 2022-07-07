@@ -15,11 +15,8 @@ const customJestConfig = {
   testEnvironment: 'jsdom',
   setupFiles: ['core-js'],
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
-  transform: {
-    '/.[jt]sx?$': 'babel-jest',
-  },
-  transformIgnorePatterns: ['./node_modules/(?!@ngrx|(?!deck.gl)|ng-dynamic)'],
+  preset: "ts-jest"
 };
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+// createJestConfig ifs exported this way to ensure that next/jest can load the Next.js config which is async
 module.exports = createJestConfig(customJestConfig);

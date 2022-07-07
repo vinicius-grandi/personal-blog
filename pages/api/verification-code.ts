@@ -1,46 +1,41 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import nodemailer from 'nodemailer';
-import { MailOptions } from 'nodemailer/lib/json-transport';
-import { productionInfo, testInfo } from '../../data/emailInfo';
+import type { Request, Response } from 'express';
+import getRateLimitMiddleware, { applyMiddleware } from '../../lib/rateLimit';
 import connection from '../../lib/redis';
+import sendMail from '../../lib/sendMail';
 
-const sendMail = async (code: number) => {
-  const info = process.env.NODE_ENV === 'test' ? testInfo : productionInfo;
-  const transporter = nodemailer.createTransport({
-    ...info,
-    auth: {
-      user: process.env.USER_EMAIL,
-      pass: process.env.USER_PASS,
-    },
-  });
+const middleware = applyMiddleware(getRateLimitMiddleware());
 
-  const mailOptions: MailOptions = {
-    from: process.env.VALIDATOR_USER,
-    to: process.env.OWNER_EMAIL,
-    subject: 'Email Confirmation',
-    html: `
-      <h2>Your code is:</h2>
-      <p>${code}</p>
-    `,
-  };
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log('#### EMAIL SENT :) ####');
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest & Request,
+  res: NextApiResponse & Response,
+) {
+  const {
+    body: { username, code },
+  } = req;
+  
   if (req.method === 'POST') {
-    const {
-      body: { username },
-    } = req;
-
-    if (await connection.get(username)) {
-      return res.json({ message: 'your code has already been sent!' });
+    // rate limiter
+    try {
+      await middleware(req, res);
+    } catch (err) {
+      console.error(err);
+      return res.status(429).json({ message: 'Too many requets' });
     }
 
+    const userCode = await connection.get(username);
+
+    if (userCode && !code) {
+      return res.json({ message: 'your code has already been sent!' });
+    }
+    if (code === userCode) {
+      return res.json({ message: 'ok' });
+    }
+    if (code) {
+      return res.status(403).json({
+        message: 'your code is incorrect!',
+      });
+    }
     const verificationCode = Math.round(Math.random() * 10e5);
 
     await sendMail(verificationCode);

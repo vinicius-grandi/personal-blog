@@ -16,6 +16,7 @@
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.1",
+    "express-rate-limit": "^6.4.0",
     "global": "^4.4.0",
     "ioredis": "^5.1.0",
     "iron-session": "^6.1.3",

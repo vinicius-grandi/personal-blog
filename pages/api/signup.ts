@@ -7,23 +7,20 @@ export default withIronSessionApiRoute(
   async (req, res) => {
     try {
       const { username, password } = req.body;
-      const user = await User.findOne({
+      const [user, created] = await User.findOrCreate({
         where: { username },
+        defaults: {
+          username,
+          password,
+        },
       });
 
-      if (!user) {
-        return res.status(403).json({
-          message: 'incorrect username/password',
+      if (!created) {
+        return res.status(409).json({
+          message: 'user already exists',
         });
       }
 
-      const isPasswordCorrect = await User.checkPassword(password);
-
-      if (!isPasswordCorrect) {
-        return res.status(403).json({
-          message: 'incorrect username/password',
-        });
-      }
       req.session.user = user;
       await req.session.save();
       return res.json(user);

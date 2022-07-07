@@ -13,7 +13,7 @@ const getIP = (request: Request) => {
 };
 
 const getRateLimitMiddleware = ({
-  limit = 1,
+  limit = 10,
   windowMs = 60 * 1000,
 } = {}) => rateLimit({ keyGenerator: getIP, windowMs, max: limit });
 

@@ -16,7 +16,6 @@ describe('/api/verification-code', () => {
     const response = await agent.post('/verification-code').send({
       username: 'vinicius',
     });
-    console.log(response.body.message);
     expect(response.body.message).toBe('verification code sent to email');
 
     const response2 = await agent.post('/verification-code').send({

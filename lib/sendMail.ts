@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import logger from 'jet-logger';
 import { MailOptions } from 'nodemailer/lib/json-transport';
 import { testInfo, productionInfo } from '../data/emailInfo';
 
@@ -23,9 +24,9 @@ const sendMail = async (code: number) => {
   };
   try {
     await transporter.sendMail(mailOptions);
-    console.log('#### EMAIL SENT :) ####');
+    logger.info('#### EMAIL SENT :) ####');
   } catch (err) {
-    console.error(err);
+    logger.err(err);
   }
 };
 

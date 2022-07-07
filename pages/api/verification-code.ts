@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import type { Request, Response } from 'express';
+import logger from 'jet-logger';
 import getRateLimitMiddleware, { applyMiddleware } from '../../lib/rateLimit';
 import connection from '../../lib/redis';
 import sendMail from '../../lib/sendMail';
@@ -13,13 +14,12 @@ export default async function handler(
   const {
     body: { username, code },
   } = req;
-  
   if (req.method === 'POST') {
     // rate limiter
     try {
       await middleware(req, res);
     } catch (err) {
-      console.error(err);
+      logger.err(err);
       return res.status(429).json({ message: 'Too many requets' });
     }
 

@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { Sequelize } = require('sequelize');
 const basename = path.basename(__filename);
+/**@type {any} */
 const db = {};
 const { config } = require('dotenv');
 

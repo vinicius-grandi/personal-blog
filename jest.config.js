@@ -15,8 +15,15 @@ const customJestConfig = {
   testEnvironment: 'jsdom',
   setupFiles: ['core-js'],
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
-  preset: "ts-jest"
+  preset: "ts-jest",
 };
 
+async function jestConfig() {
+  const nextJestConfig = await createJestConfig(customJestConfig)()
+  // /node_modules/ is the first pattern
+  nextJestConfig.transformIgnorePatterns[0] = '/node_modules/(?!uuid)/'
+  return nextJestConfig
+}
+
 // createJestConfig ifs exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig);
+module.exports = jestConfig;

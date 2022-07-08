@@ -1,23 +1,31 @@
 import { NextPage } from 'next';
 import PropTypes from 'prop-types';
+import FormStateMemoryTypes from '../../lib/PropTypeValues';
+import { FormState } from './FormState';
 import Info from './Info';
 import Verification from './Verification';
 
 type StepProps = {
-  step: number;
+  formState: FormState;
   prevStep: () => void;
   nextStep: () => void;
   handleChange: (input: HTMLInputElement) => void;
 };
 
 const StepHandler: NextPage<StepProps> = ({
-  step, handleChange, nextStep, prevStep,
+  formState, handleChange, nextStep, prevStep,
 }) => {
-  switch (step) {
+  switch (formState.step) {
     case 1:
       return <Info handleChange={handleChange} nextStep={nextStep} />;
     case 2:
-      return <Verification nextStep={nextStep} prevStep={prevStep} />;
+      return (
+        <Verification
+          handleChange={handleChange}
+          prevStep={prevStep}
+          formState={formState}
+        />
+      );
     default:
       return <h1>Something went really wrong</h1>;
   }
@@ -26,7 +34,7 @@ const StepHandler: NextPage<StepProps> = ({
 StepHandler.propTypes = {
   nextStep: PropTypes.func.isRequired,
   prevStep: PropTypes.func.isRequired,
-  step: PropTypes.number.isRequired,
+  formState: FormStateMemoryTypes.isRequired,
   handleChange: PropTypes.func.isRequired,
 };
 

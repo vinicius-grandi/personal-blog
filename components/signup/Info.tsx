@@ -12,7 +12,7 @@ const Info: NextPage<{ nextStep: () => void, handleChange: (input: HTMLInputElem
       username:
       <input type="text" id="username" name="username" onChange={(ev) => handleChange(ev.target)} />
     </label>
-    <label htmlFor="username">
+    <label htmlFor="password">
       password:
       <input type="text" id="password" name="password" onChange={(ev) => handleChange(ev.target)} />
     </label>

@@ -12,11 +12,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'poster_id',
       });
     }
+    async checkPassword(password) {
+      const compare = await bcrypt.compare(password, this.password);
+      return compare;
+    }
   }
-
-  User.prototype.checkPassword = async (password) => {
-    return bcrypt.compare(password, this.password);
-  };
 
   User.init({
     username: DataTypes.STRING,
@@ -25,6 +25,13 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
     tableName: 'users',
+    hooks: {
+      async beforeCreate(user) {
+        const u = user;
+        const hash = await bcrypt.hash(user.password, 8);
+        u.password = hash;
+      }
+    },
   });
   return User;
 };

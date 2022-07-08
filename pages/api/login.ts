@@ -1,7 +1,8 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
+import logger from 'jet-logger';
 import db from '../../db/models';
 
-const { User } = db as any;
+const { User } = db;
 
 export default withIronSessionApiRoute(
   async (req, res) => {
@@ -17,7 +18,7 @@ export default withIronSessionApiRoute(
         });
       }
 
-      const isPasswordCorrect = await User.checkPassword(password);
+      const isPasswordCorrect = await user.checkPassword(password);
 
       if (!isPasswordCorrect) {
         return res.status(403).json({
@@ -28,7 +29,7 @@ export default withIronSessionApiRoute(
       await req.session.save();
       return res.json(user);
     } catch (error) {
-      console.error(error);
+      logger.err(error);
       return res.status(500).json({
         message: 'internal server error',
       });

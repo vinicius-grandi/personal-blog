@@ -23,15 +23,19 @@ describe('Sign Up Page', () => {
     await userEvent.click(continueButton);
 
     const verificationCodeButton = await screen.findByRole('button', {
-      name: /send verification code/i,
+      name: /send code/i,
     });
 
     await userEvent.click(verificationCodeButton);
+
+    const statusMsg = await screen.findByText(/verification code sent to email/i);
+    expect(statusMsg).toBeInTheDocument();
 
     const verificationCodeInput = screen.getByLabelText('verification code');
 
     await userEvent.type(verificationCodeInput, 'secretCode');
 
     await userEvent.click(continueButton);
+    expect(window).toBeCalledTimes(1);
   });
 });

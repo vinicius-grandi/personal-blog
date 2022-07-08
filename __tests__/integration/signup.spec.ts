@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 import connection from '../../lib/redis';
 import send from '../../pages/api/code/send';
 import signupRoute from '../../pages/api/signup';

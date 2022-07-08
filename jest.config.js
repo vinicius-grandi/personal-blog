@@ -15,7 +15,6 @@ const customJestConfig = {
   testEnvironment: 'jsdom',
   setupFiles: ['core-js'],
   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
-  preset: "ts-jest",
 };
 
 async function jestConfig() {

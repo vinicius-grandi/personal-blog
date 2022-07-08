@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import FormStateMemoryTypes from '../../lib/PropTypeValues';
 import { FormState } from './FormState';
+import { useBaseurl } from '../../contexts/baseurl';
 
 const Verification: NextPage<{
   formState: FormState;
@@ -14,22 +15,22 @@ const Verification: NextPage<{
   formState,
 }) => {
   const [verificationCodeDisabled, setVerificationCodeDisabled] = useState(true);
+  const { baseurl } = useBaseurl();
   const [statusMsg, setStatusMsg] = useState('');
 
   const verificationCodeHandler = async () => {
     setVerificationCodeDisabled(false);
     const formData = new FormData();
     const { code, username } = formState;
+
     formData.append('username', username);
     formData.append('code', code);
-
-    const response = await fetch('/api/code/send', {
+    const response = await fetch(`${baseurl}/api/code/send`, {
       method: 'put',
       body: formData,
     });
-    const message = await response.json();
-    console.log(message);
-    setStatusMsg(message);
+    const data = await response.json();
+    setStatusMsg(data.message);
   };
 
   return (

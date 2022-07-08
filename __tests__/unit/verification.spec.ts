@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 import send from '../../pages/api/code/send';
 import verify from '../../pages/api/code/verify';
 import testClient from '../utils/test-client';

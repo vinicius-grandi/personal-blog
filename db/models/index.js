@@ -9,7 +9,7 @@ const db = {};
 const { config } = require('dotenv');
 
 config({
-  path: path.resolve(__dirname, '.env.test'),
+  path: path.resolve(__dirname, './.env.local'),
 });
 
 let sequelize;

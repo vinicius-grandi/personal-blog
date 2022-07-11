@@ -9,11 +9,31 @@ import { useBaseurl } from '../contexts/baseurl';
 
 const Container = styled.div`
   background-color: #1c221f;
+  margin: auto;
+  padding: 10%;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  align-content: center;
+  color: #f4f4f4;
+  *:not(input, div) {
+    margin: 0.5rem;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+  }
+  button {
+    background-color: #D9D9D9;
+    padding: 0.36rem;
+  }
+
+  button ~ button {
+    float: right;
+  }
 `;
 
 const SignupPage: NextPage<{ baseurl?: string }> = ({ baseurl }) => {
@@ -39,12 +59,16 @@ const SignupPage: NextPage<{ baseurl?: string }> = ({ baseurl }) => {
     ev.preventDefault();
     const { username, password, code } = formState;
     const formData = new FormData();
+    console.log(username, password, code);
     formData.append('username', username);
     formData.append('password', password);
     formData.append('code', code);
     const response = await fetch('/api/signup', {
       method: 'post',
       body: formData,
+      headers: new Headers({
+        'Content-Type': 'multipart/form-data',
+      }),
     });
     if (response.status === 200) {
       await router.replace('/');

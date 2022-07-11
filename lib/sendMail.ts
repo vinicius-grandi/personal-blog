@@ -4,7 +4,7 @@ import { MailOptions } from 'nodemailer/lib/json-transport';
 import { testInfo, productionInfo } from '../data/emailInfo';
 
 const sendMail = async (code: number) => {
-  const info = process.env.NODE_ENV === 'test' ? testInfo : productionInfo;
+  const info = process.env.NODE_ENV !== 'production' ? testInfo : productionInfo;
   const transporter = nodemailer.createTransport({
     ...info,
     auth: {

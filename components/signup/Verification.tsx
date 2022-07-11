@@ -25,12 +25,16 @@ const Verification: NextPage<{
 
     formData.append('username', username);
     formData.append('code', code);
-    const response = await fetch(`${baseurl}/api/code/send`, {
-      method: 'put',
-      body: formData,
-    });
-    const data = await response.json();
-    setStatusMsg(data.message);
+    try {
+      const response = await fetch('/api/code/send', {
+        method: 'post',
+        body: formData,
+      });
+      const data = await response.json();
+      setStatusMsg(data.message);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -49,12 +53,14 @@ const Verification: NextPage<{
       <button type="button" onClick={verificationCodeHandler}>
         Send Code
       </button>
-      <button type="submit" onClick={() => prevStep()}>
-        Previous
-      </button>
-      <button type="submit" disabled={verificationCodeDisabled}>
-        Continue
-      </button>
+      <div>
+        <button type="button" onClick={() => prevStep()}>
+          Previous
+        </button>
+        <button type="submit" disabled={verificationCodeDisabled}>
+          Continue
+        </button>
+      </div>
     </>
   );
 };

@@ -9,6 +9,7 @@ export default withIronSessionApiRoute(
   async (req, res) => {
     try {
       const { username, password, code } = req.body;
+      console.log(req.body);
       if (!username || !password || !code) {
         return res.status(400).json({
           message: 'bad request',
@@ -48,8 +49,8 @@ export default withIronSessionApiRoute(
     cookieName: 'blog_cookiename',
     password: process.env.COOKIE_PASSWORD ?? '',
     cookieOptions: {
-      secure: process.env.NODE_ENV !== 'test',
-      httpOnly: process.env.NODE_ENV !== 'test',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: process.env.NODE_ENV === 'production',
     },
   },
 );

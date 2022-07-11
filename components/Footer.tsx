@@ -21,7 +21,7 @@ const Footer: NextPage = () => (
     <p>
       Have a nice day
       {' '}
-      <Link href="cute-cat"> &#128512;</Link>
+      <Link href="wide-cat"> &#128512;</Link>
     </p>
   </StyledFooter>
 );

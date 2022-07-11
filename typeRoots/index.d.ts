@@ -2,6 +2,10 @@ import 'iron-session';
 
 declare module 'iron-session' {
   interface IronSessionData {
-    user: any;
+    user: {
+      id: number;
+      username: string
+      password: string;
+    };
   }
 }

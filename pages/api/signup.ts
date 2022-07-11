@@ -1,24 +1,36 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
+import multiparty from 'multiparty';
 import logger from 'jet-logger';
 import db from '../../db/models';
 import connection from '../../lib/redis';
+import sessionOptions from '../../lib/sessionOptions';
 
 const { User } = db as any;
 
 export default withIronSessionApiRoute(
   async (req, res) => {
     try {
-      const { username, password, code } = req.body;
-      console.log(req.body);
+      const form = new multiparty.Form();
+      const data: Promise<{
+        fields: { username: string[], code: string[]; password: string[] },
+        files: any,
+      }> = new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) {
+            reject(new Error(String(err)));
+          }
+          resolve({ fields, files });
+        });
+      });
+      const { fields: { username: [username], password: [password], code: [code] } } = await data;
       if (!username || !password || !code) {
         return res.status(400).json({
           message: 'bad request',
         });
       }
       const userCode = await connection.get(username);
-
       if (userCode !== code) {
-        return res.status(401).json({ message: 'not authorized' });
+        return res.status(401).json({ message: 'Your code is incorrect' });
       }
 
       const [user, created] = await User.findOrCreate({
@@ -34,8 +46,7 @@ export default withIronSessionApiRoute(
           message: 'user already exists',
         });
       }
-
-      req.session.user = user;
+      req.session.user = user.dataValues;
       await req.session.save();
       return res.json(user);
     } catch (error) {
@@ -45,12 +56,11 @@ export default withIronSessionApiRoute(
       });
     }
   },
-  {
-    cookieName: 'blog_cookiename',
-    password: process.env.COOKIE_PASSWORD ?? '',
-    cookieOptions: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: process.env.NODE_ENV === 'production',
-    },
-  },
+  sessionOptions,
 );
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};

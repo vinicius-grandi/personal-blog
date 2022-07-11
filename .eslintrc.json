@@ -51,7 +51,8 @@
     "@typescript-eslint/no-explicit-any": "off",
     "react/react-in-jsx-scope": "off",
     "react/function-component-definition": "off",
-    "@typescript-eslint/no-floating-promises": ["error"]
+    "@typescript-eslint/no-floating-promises": ["error"],
+    "no-void": "off"
   },
   "ignorePatterns": ["**/*.js"]
 }

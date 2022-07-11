@@ -19,14 +19,15 @@ export default async function handler(
       logger.err(err);
       return res.status(429).json({ message: 'Too many requests' });
     }
-    const {
-      body: { username },
-    } = req;
+    const { username } = JSON.parse(req.body);
     const verificationCode = Math.round(Math.random() * 10e5);
 
     await sendMail(verificationCode);
-    await connection.set(username, String(verificationCode), 'EX', 60 * 10);
-
+    try {
+      await connection.set(username, verificationCode, 'EX', 60 * 10);
+    } catch (err) {
+      logger.err(err);
+    }
     return res.json({ message: 'verification code sent to email' });
   }
   return res.status(404).json({ message: "This route doesn't exist" });

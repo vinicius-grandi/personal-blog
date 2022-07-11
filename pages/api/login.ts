@@ -1,6 +1,7 @@
 import { withIronSessionApiRoute } from 'iron-session/next';
 import logger from 'jet-logger';
 import db from '../../db/models';
+import sessionOptions from '../../lib/sessionOptions';
 
 const { User } = db;
 
@@ -35,12 +36,5 @@ export default withIronSessionApiRoute(
       });
     }
   },
-  {
-    cookieName: 'blog_cookiename',
-    password: process.env.COOKIE_PASSWORD ?? '',
-    cookieOptions: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: process.env.NODE_ENV === 'production',
-    },
-  },
+  sessionOptions,
 );

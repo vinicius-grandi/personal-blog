@@ -5,7 +5,7 @@ const { resolve } = require('path');
 const { Crypto } = require('@peculiar/webcrypto');
 
 config({
-  path: resolve(__dirname, './.env.local'),
+  path: resolve(process.cwd(), './.env.local'),
 });
 
 global.crypto = new Crypto();

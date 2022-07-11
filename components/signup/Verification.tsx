@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import FormStateMemoryTypes from '../../lib/PropTypeValues';
 import { FormState } from './FormState';
-import { useBaseurl } from '../../contexts/baseurl';
 
 const Verification: NextPage<{
   formState: FormState;
@@ -15,20 +14,16 @@ const Verification: NextPage<{
   formState,
 }) => {
   const [verificationCodeDisabled, setVerificationCodeDisabled] = useState(true);
-  const { baseurl } = useBaseurl();
   const [statusMsg, setStatusMsg] = useState('');
 
   const verificationCodeHandler = async () => {
     setVerificationCodeDisabled(false);
-    const formData = new FormData();
-    const { code, username } = formState;
+    const { username } = formState;
 
-    formData.append('username', username);
-    formData.append('code', code);
     try {
       const response = await fetch('/api/code/send', {
         method: 'post',
-        body: formData,
+        body: JSON.stringify({ username }),
       });
       const data = await response.json();
       setStatusMsg(data.message);
@@ -57,7 +52,7 @@ const Verification: NextPage<{
         <button type="button" onClick={() => prevStep()}>
           Previous
         </button>
-        <button type="submit" disabled={verificationCodeDisabled}>
+        <button type="submit" disabled={verificationCodeDisabled} className="continue-btn" form="sign-up-form">
           Continue
         </button>
       </div>

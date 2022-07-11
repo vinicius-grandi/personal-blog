@@ -9,9 +9,6 @@ export default async function handler(
   req: NextApiRequest & Request,
   res: NextApiResponse & Response,
 ) {
-  const {
-    body: { username, code },
-  } = req;
   if (req.method === 'POST') {
     // rate limiter
     try {
@@ -19,6 +16,9 @@ export default async function handler(
     } catch {
       return res.status(429).json({ message: 'Too many requests' });
     }
+    const {
+      body: { username, code },
+    } = req;
 
     const userCode = await connection.get(username);
 

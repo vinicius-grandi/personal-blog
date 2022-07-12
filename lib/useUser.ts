@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import useSWR from 'swr';
-import { useRouter } from 'next/router';
+import Router from 'next/router';
 import { User } from '../pages/api/user';
 
 const fetcher = (...args: [string, RequestInit]) => fetch(...args).then((res) => res.json());
 
-const useUser = () => {
+const useUser = (reload: boolean) => {
   const { data } = useSWR<User>('/api/user', fetcher);
-  const router = useRouter();
   useEffect(() => {
     if (!data) {
       return;
@@ -16,10 +15,12 @@ const useUser = () => {
       return;
     }
     async function redirect() {
-      await router.replace('/');
+      await Router.replace('/');
     }
-    void redirect();
-  }, [data, router]);
+    if (reload) {
+      void redirect();
+    }
+  }, [data, reload]);
   return data;
 };
 

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import AdminPage from '../../pages/admin/create';
+import AdminPage from '../../pages/admin/create-post';
 
 describe('Admin Page', () => {
   afterAll(() => {

@@ -60,7 +60,7 @@ const Form = styled.form`
 `;
 
 const SignupPage: NextPage<{ baseurl?: string }> = () => {
-  useUser();
+  useUser(true);
   const [formState, setFormState] = useState<FormState>({
     step: 1,
     username: '',

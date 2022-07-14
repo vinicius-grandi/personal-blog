@@ -2,6 +2,7 @@ import Editor from '@draft-js-plugins/editor';
 import { stateToHTML } from 'draft-js-export-html';
 import createLinkPlugin from '@draft-js-plugins/anchor';
 import createInlineToolbarPlugin from '@draft-js-plugins/inline-toolbar';
+import Immutable from 'immutable';
 import {
   EditorState,
   ContentState,
@@ -14,6 +15,21 @@ import { useMemo, useState } from 'react';
 import ToolBar from './ToolBar';
 import Tools from './Tools';
 import { User } from '../../pages/api/user';
+
+const blockRenderMap = Immutable.Map({
+  h1: {
+    element: 'h1',
+  },
+  h2: {
+    element: 'h2',
+  },
+  h3: {
+    element: 'h3',
+  },
+  h4: {
+    element: 'h4',
+  },
+});
 
 function EditorComponent({ data }: { data: User | undefined }): JSX.Element {
   const [post, setPost] = useState({ authorId: 0, title: '', content: '' });
@@ -64,6 +80,7 @@ function EditorComponent({ data }: { data: User | undefined }): JSX.Element {
         editorKey="editor"
         handleKeyCommand={handleKeyCommand}
         plugins={plugins}
+        blockRenderMap={blockRenderMap}
       />
       <ToolBar InlineToolbar={InlineToolbar} linkPlugin={linkPlugin} />
       <button id="save-btn" type="button" onClick={handleSave}>Save Post</button>

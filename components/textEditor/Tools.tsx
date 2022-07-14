@@ -4,6 +4,10 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: baseline;
 `;
 
 const Bold = styled.button`
@@ -11,23 +15,35 @@ const Bold = styled.button`
   color: white;
   padding: 0.46rem;
   border-radius: 3px;
-  margin: 1rem 0;
+  &:hover {
+    cursor: pointer;
+    background-color: #444444;
+  }
 `;
 
 const HeaderStyle = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  position: absolute;
-  top: 50%;
-  z-index: 1;
+  position: relative;
+  height: 0;
+  input {
+    text-align: center;
+    width: 100%;
+    height: 30px;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+  input:hover {
+    cursor: pointer;
+    background-color: #a8a8a8;
+  }
 `;
 
 function Tools({
   editorState,
   setEditorState,
 }: {
-  editorState: EditorState,
-  setEditorState: Dispatch<SetStateAction<EditorState>>,
+  editorState: EditorState;
+  setEditorState: Dispatch<SetStateAction<EditorState>>;
 }): JSX.Element {
   const [showOptions, setShowOptions] = useState(false);
   return (
@@ -44,14 +60,23 @@ function Tools({
         onMouseEnter={() => setShowOptions(true)}
         onMouseLeave={() => setShowOptions(false)}
       >
-        <input value="H1" readOnly />
+        <input type="text" value="H1" readOnly />
         {showOptions && (
-        <>
-          <input value="H2" readOnly />
-          <input value="H3" readOnly />
-        </>
+          <>
+            {Array.from(Array(3)).map((_, idx) => (
+              <input type="text" value={`H${idx + 2}`} onClick={() => setEditorState(RichUtils.toggleBlockType(editorState, 'header-one'))} readOnly />
+            ))}
+          </>
         )}
       </HeaderStyle>
+      <Bold
+        type="button"
+        onClick={() => {
+          setEditorState(RichUtils.toggleInlineStyle(editorState, 'ITALIC'));
+        }}
+      >
+        Italic
+      </Bold>
     </Container>
   );
 }

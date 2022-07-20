@@ -1,8 +1,8 @@
 import Editor from '@draft-js-plugins/editor';
-import { stateToHTML } from 'draft-js-export-html';
+import { stateToHTML, Options } from 'draft-js-export-html';
 import createLinkPlugin from '@draft-js-plugins/anchor';
 import createInlineToolbarPlugin from '@draft-js-plugins/inline-toolbar';
-import Immutable from 'immutable';
+import Immutable, { Iterator } from 'immutable';
 import {
   EditorState,
   ContentState,
@@ -47,11 +47,30 @@ function EditorComponent({ data }: { data: User | undefined }): JSX.Element {
     () => EditorState.createWithContent(ContentState.createFromText('type here')),
   );
 
+  const iteratorToArray = (iterator: Iterator<string>, arr: string[]): string[] => {
+    const strArr: string[] = [...arr];
+    const nextValue = iterator.next();
+    if (nextValue.done) {
+      return strArr;
+    }
+    strArr.push(nextValue.value);
+    return iteratorToArray(iterator, strArr);
+  };
+
   const handleSave = () => {
     if (data && data.user) {
       setPost({ ...post, authorId: data.user.id });
     }
-    const html = stateToHTML(editorState.getCurrentContent());
+    const keys = iteratorToArray(blockRenderMap.keys(), []);
+    const blockRenderers: any = {};
+    keys.forEach((val) => {
+      blockRenderers[val] = (block: any) => `<h1>${block.getText()}</h1>`;
+    });
+    const options = {
+      blockRenderers,
+    };
+    console.log(options);
+    const html = stateToHTML(editorState.getCurrentContent(), options);
     console.log(html);
   };
 

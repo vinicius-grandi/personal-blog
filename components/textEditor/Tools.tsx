@@ -1,9 +1,10 @@
 import { EditorState, RichUtils } from 'draft-js';
-import { SetStateAction, Dispatch, useState } from 'react';
+import React, { SetStateAction, Dispatch, useState } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
   position: relative;
+  margin-bottom: 3rem;
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -46,6 +47,11 @@ function Tools({
   setEditorState: Dispatch<SetStateAction<EditorState>>;
 }): JSX.Element {
   const [showOptions, setShowOptions] = useState(false);
+  const handleBlockType = (
+    ev: React.MouseEvent<HTMLInputElement>,
+  ) => setEditorState(
+    RichUtils.toggleBlockType(editorState, ev.currentTarget.value.toLowerCase()),
+  );
   return (
     <Container>
       <Bold
@@ -60,11 +66,11 @@ function Tools({
         onMouseEnter={() => setShowOptions(true)}
         onMouseLeave={() => setShowOptions(false)}
       >
-        <input type="text" value="H1" readOnly />
+        <input type="text" value="H1" onClick={handleBlockType} readOnly />
         {showOptions && (
           <>
             {Array.from(Array(3)).map((_, idx) => (
-              <input type="text" value={`H${idx + 2}`} onClick={() => setEditorState(RichUtils.toggleBlockType(editorState, 'header-one'))} readOnly />
+              <input type="text" value={`H${idx + 2}`} onClick={handleBlockType} key={`H${idx + 2}`} readOnly />
             ))}
           </>
         )}

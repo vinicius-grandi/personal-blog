@@ -1,5 +1,5 @@
 import Editor from '@draft-js-plugins/editor';
-import { stateToHTML, Options } from 'draft-js-export-html';
+import { stateToHTML } from 'draft-js-export-html';
 import createLinkPlugin from '@draft-js-plugins/anchor';
 import createInlineToolbarPlugin from '@draft-js-plugins/inline-toolbar';
 import Immutable, { Iterator } from 'immutable';
@@ -31,8 +31,8 @@ const blockRenderMap = Immutable.Map({
   },
 });
 
-function EditorComponent({ data }: { data: User | undefined }): JSX.Element {
-  const [post, setPost] = useState({ authorId: 0, title: '', content: '' });
+function EditorComponent({ data, title }: { data: User | undefined; title: string }): JSX.Element {
+  const [post, setPost] = useState({ authorId: 1, title: '', content: '' });
   const { linkPlugin, InlineToolbar, plugins } = useMemo(() => {
     const lp = createLinkPlugin();
     const inlineTP = createInlineToolbarPlugin();
@@ -64,13 +64,20 @@ function EditorComponent({ data }: { data: User | undefined }): JSX.Element {
     const keys = iteratorToArray(blockRenderMap.keys(), []);
     const blockRenderers: any = {};
     keys.forEach((val) => {
-      blockRenderers[val] = (block: any) => `<h1>${block.getText()}</h1>`;
+      blockRenderers[val] = (block: any) => `<${val}>${block.getText()}</${val}>`;
     });
     const options = {
       blockRenderers,
     };
-    console.log(options);
     const html = stateToHTML(editorState.getCurrentContent(), options);
+
+    setPost({ ...post, content: html, title });
+    const newestPost = {
+      title,
+      authorId: post.authorId,
+      content: html,
+    };
+    console.log(newestPost);
     console.log(html);
   };
 
@@ -84,8 +91,6 @@ function EditorComponent({ data }: { data: User | undefined }): JSX.Element {
       setEditorState(newState);
       return 'handled';
     }
-
-    console.log(command);
 
     return 'not-handled';
   };

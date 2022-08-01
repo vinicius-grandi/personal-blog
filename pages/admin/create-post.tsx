@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
+import Head from 'next/head';
 import useUser from '../../lib/useUser';
 
 const Title = styled.label`
@@ -22,6 +24,9 @@ const Main = styled.main`
   #save-btn {
     position: fixed;
     background-color: green;
+    &:hover {
+      background-color: #064d06;
+    }
     padding: 0.4rem;
     color: white;
     bottom: 2rem;
@@ -37,15 +42,19 @@ const Editor = dynamic(() => import('../../components/textEditor/Editor'), {
 
 export default function CreatePostPage() {
   const data = useUser(false);
+  const [title, setTitle] = useState('');
   return (
     <>
+      <Head>
+        <title>Create New Post</title>
+      </Head>
       <Title>
         <h1>Title:</h1>
         {' '}
-        <input type="text" id="title" />
+        <input type="text" id="title" onChange={(e) => setTitle(e.target.value)} />
       </Title>
       <Main>
-        <Editor data={data} />
+        <Editor data={data} title={title} />
       </Main>
     </>
   );

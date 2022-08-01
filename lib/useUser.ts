@@ -6,7 +6,9 @@ import { User } from '../pages/api/user';
 const fetcher = (...args: [string, RequestInit]) => fetch(...args).then((res) => res.json());
 
 const useUser = (reload: boolean) => {
-  const { data } = useSWR<User>('/api/user', fetcher);
+  const { data } = useSWR<User>('/api/user', fetcher, {
+    revalidateOnFocus: false,
+  });
   useEffect(() => {
     if (!data) {
       return;

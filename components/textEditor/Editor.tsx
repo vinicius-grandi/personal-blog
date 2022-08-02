@@ -78,7 +78,6 @@ function EditorComponent({ data, title }: { data: User | undefined; title: strin
       content: html,
     };
     console.log(newestPost);
-    console.log(html);
   };
 
   const handleKeyCommand = (

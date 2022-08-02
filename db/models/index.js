@@ -9,7 +9,7 @@ const { config } = require('dotenv');
 const modelsPath = path.resolve(process.cwd(), 'db', 'models');
 
 config({
-  path: path.resolve(process.cwd(), './.env.local'),
+  path: path.resolve(process.cwd(), './.env.development'),
 });
 
 let sequelize;

@@ -19,7 +19,7 @@ export default async function handler(
       logger.err(err);
       return res.status(429).json({ message: 'Too many requests' });
     }
-    const { username } = JSON.parse(req.body);
+    const { username } = typeof req.body === 'object' ? req.body : JSON.parse(req.body);
     const verificationCode = Math.round(Math.random() * 10e5);
 
     await sendMail(verificationCode);

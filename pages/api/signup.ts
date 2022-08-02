@@ -7,60 +7,68 @@ import sessionOptions from '../../lib/sessionOptions';
 
 const { User } = db as any;
 
-export default withIronSessionApiRoute(
-  async (req, res) => {
-    try {
-      const form = new multiparty.Form();
-      const data: Promise<{
-        fields: { username: string[], code: string[]; password: string[] },
-        files: any,
-      }> = new Promise((resolve, reject) => {
-        form.parse(req, (err, fields, files) => {
-          if (err) {
-            reject(new Error(String(err)));
-          }
-          resolve({ fields, files });
-        });
-      });
-      const { fields: { username: [username], password: [password], code: [code] } } = await data;
-      if (!username || !password || !code) {
-        return res.status(400).json({
-          message: 'bad request',
-        });
-      }
-      const userCode = await connection.get(username);
-      if (userCode !== code) {
-        return res.status(401).json({ message: 'Your code is incorrect' });
-      }
-
-      const [user, created] = await User.findOrCreate({
-        where: { username },
-        defaults: {
-          username,
-          password,
-        },
-      });
-
-      if (!created) {
-        return res.status(409).json({
-          message: 'user already exists',
-        });
-      }
-      req.session.user = user.dataValues;
-      await req.session.save();
-      return res.json(user);
-    } catch (error) {
-      logger.err(error);
-      return res.status(500).json({
-        message: 'internal server error',
-      });
-    }
-  },
-  sessionOptions,
-);
-
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+export default withIronSessionApiRoute(async (req, res) => {
+  try {
+    const form = new multiparty.Form();
+    form.parse(req, (err, fields, files) => {
+      console.log({ err, fields, files });
+    });
+    const data: Promise<{
+      fields: { username: string[]; code: string[]; password: string[] };
+      files: any;
+    }> = new Promise((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) {
+          logger.err(err);
+          reject(new Error(String(err)));
+        }
+        console.log(fields);
+        resolve({ fields, files });
+      });
+    });
+    const {
+      fields: {
+        username: [username],
+        password: [password],
+        code: [code],
+      },
+    } = await data;
+    if (!username || !password || !code) {
+      return res.status(400).json({
+        message: 'bad request',
+      });
+    }
+    const userCode = await connection.get(username);
+    if (userCode !== code) {
+      return res.status(401).json({ message: 'Your code is incorrect' });
+    }
+
+    const [user, created] = await User.findOrCreate({
+      where: { username },
+      defaults: {
+        username,
+        password,
+      },
+    });
+
+    if (!created) {
+      return res.status(409).json({
+        message: 'user already exists',
+      });
+    }
+    req.session.user = user.dataValues;
+    await req.session.save();
+    return res.json(user);
+  } catch (error) {
+    logger.err(error);
+    return res.status(500).json({
+      message: 'internal server error',
+    });
+  }
+}, sessionOptions);

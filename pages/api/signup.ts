@@ -16,9 +16,6 @@ export const config = {
 export default withIronSessionApiRoute(async (req, res) => {
   try {
     const form = new multiparty.Form();
-    form.parse(req, (err, fields, files) => {
-      console.log({ err, fields, files });
-    });
     const data: Promise<{
       fields: { username: string[]; code: string[]; password: string[] };
       files: any;
@@ -28,7 +25,6 @@ export default withIronSessionApiRoute(async (req, res) => {
           logger.err(err);
           reject(new Error(String(err)));
         }
-        console.log(fields);
         resolve({ fields, files });
       });
     });
@@ -39,6 +35,7 @@ export default withIronSessionApiRoute(async (req, res) => {
         code: [code],
       },
     } = await data;
+    console.log(username);
     if (!username || !password || !code) {
       return res.status(400).json({
         message: 'bad request',

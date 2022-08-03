@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable no-promise-executor-return */
+import { createMocks } from 'node-mocks-http';
+import FormData from 'form-data';
 import posts from '../../pages/api/posts';
 import send from '../../pages/api/code/send';
 import signupRoute from '../../pages/api/signup';
-import testClient from '../utils/test-client';
 import connection from '../../lib/redis';
 import truncateTables from '../utils/truncateTables';
 
@@ -21,16 +22,22 @@ describe('/api/code/verify', () => {
     await new Promise((resolve) => setImmediate(resolve));
   });
   it('gets a code from the request body, if it exists, and then signs up a new user', async () => {
-    const agent = testClient(send);
-    await agent.post('/code/send').send({ username: 'vinicius' });
+    const { req, res }: any = createMocks({
+      method: 'POST',
+      body: { username: 'vinicius' },
+    });
+    await send(req, res);
     const code = await connection.get('vinicius');
-    const request = testClient(signupRoute);
-    const formdata = new FormData();
-    formdata.set('username', 'vinicius');
-    formdata.set('password', 'coolPassword');
-    formdata.set('code', code ?? '');
-    const resp = await request.post('/signup').send(formdata);
-    const response = await testClient(posts).post('/posts');
-    expect(response.text).toBe('ok');
+    const formData = new FormData();
+    formData.append('username', 'vinicius');
+    formData.append('password', 'coolPassword');
+    formData.append('code', code ?? '');
+    const loginInfo: any = createMocks({
+      method: 'POST',
+      body: formData,
+      headers: formData.getHeaders(),
+    });
+    await signupRoute(loginInfo.req, loginInfo.res);
+    console.log(code);
   });
 });

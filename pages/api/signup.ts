@@ -14,29 +14,43 @@ export const config = {
 };
 
 export default withIronSessionApiRoute(async (req, res) => {
+  let username = '';
+  let password = '';
+  let code = '';
+  const setVariables = (u: string, p: string, c: string) => {
+    username = u;
+    password = p;
+    code = c;
+  };
   try {
-    const form = new multiparty.Form();
-    const data: Promise<{
-      fields: { username: string[]; code: string[]; password: string[] };
-      files: any;
-    }> = new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) {
-          logger.err(err);
-          reject(new Error(String(err)));
-        }
-        resolve({ fields, files });
+    if ('username' in req.body) {
+      const { body: { username: u, password: p, code: c } } = req;
+      setVariables(u, p, c);
+    } else {
+      const form = new multiparty.Form();
+      const data: Promise<{
+        fields: { username: string[]; code: string[]; password: string[] };
+        files: any;
+      }> = new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) {
+            logger.err(err);
+            reject(new Error(String(err)));
+          }
+          resolve({ fields, files });
+        });
       });
-    });
-    const {
-      fields: {
-        username: [username],
-        password: [password],
-        code: [code],
-      },
-    } = await data;
-    console.log(username);
-    if (!username || !password || !code) {
+      const {
+        fields: {
+          username: [u],
+          password: [p],
+          code: [c],
+        },
+      } = await data;
+      setVariables(u, p, c);
+    }
+
+    if (username.length < 1 || password.length < 1 || code.length < 1) {
       return res.status(400).json({
         message: 'bad request',
       });

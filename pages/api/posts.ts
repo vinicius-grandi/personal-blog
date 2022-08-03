@@ -1,12 +1,28 @@
+import logger from 'jet-logger';
 import { NextApiRequest, NextApiResponse } from 'next';
+import db from '../../db/models';
+
+const { Post } = db;
 
 class PostController {
-  static createPost(req: NextApiRequest) {
-    return 'get';
+  static async createPost(req: NextApiRequest) {
+    const { title, content } = req.body;
+    const post = Post.create({
+      authorId: req.session.user.id,
+      title,
+      content,
+    });
+    return post;
   }
 
-  static updatePost(req: NextApiRequest) {
-    return 'post';
+  static async updatePost(req: NextApiRequest) {
+    const { title, content, id } = req.body;
+    const post = await Post.findByPk(id);
+    await post.update({
+      title,
+      content,
+    });
+    return post;
   }
 
   static deletePost(res: NextApiResponse) {
@@ -16,6 +32,7 @@ class PostController {
 
 const routeMap = {
   POST: PostController.createPost,
+  PUT: PostController.updatePost,
 };
 
 function isAValidMethod(method: string): method is keyof typeof routeMap {
@@ -25,13 +42,20 @@ function isAValidMethod(method: string): method is keyof typeof routeMap {
   return false;
 }
 
-function posts(req: NextApiRequest, res: NextApiResponse) {
-  // console.log(req.session);
+async function posts(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== undefined && isAValidMethod(req.method)) {
-    const r = routeMap[req.method](req);
-    res.send(r);
+    if (req.session && req.session.user) {
+      try {
+        const r = await routeMap[req.method](req);
+        res.send(r);
+      } catch (error) {
+        logger.err(error);
+      }
+    } else {
+      res.status(401).json({ message: 'Unauthorized' });
+    }
   } else {
-    res.send('fuck');
+    res.status(400).json({ message: 'Bad Request' });
   }
 }
 

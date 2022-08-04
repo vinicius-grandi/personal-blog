@@ -4,6 +4,7 @@ import connection from '../../lib/redis';
 import truncateTables from '../utils/truncateTables';
 import testClient from '../utils/test-client';
 import posts from '../../pages/api/posts';
+import createPost from '../../pages/api/posts/create';
 import post from '../../pages/api/posts/[id]';
 import db from '../../db/models';
 
@@ -36,7 +37,7 @@ describe('/api/posts', () => {
       username: 'vinicius',
       password: 'coolPassword',
     });
-    const response = await testClient(posts).post('/posts').send({
+    const response = await testClient(createPost).post('/posts/create').send({
       title: 'First Post',
       content: `
         <h1>My first Post is Really Sick</h1>
@@ -53,7 +54,7 @@ describe('/api/posts', () => {
   });
   it('sends a error message when the user is not authenticated', async () => {
     const { default: actualTestClient } = jest.requireActual('../utils/test-client');
-    const response = await actualTestClient(posts).post('/posts').send({
+    const response = await actualTestClient(createPost).post('/posts/create').send({
       title: 'First Post',
       content: `
         <h1>My first Post is Really Sick</h1>
@@ -67,15 +68,14 @@ describe('/api/posts', () => {
       username: 'vinicius',
       password: 'coolPassword',
     });
-    await testClient(posts).post('/posts').send({
+    await testClient(createPost).post('/posts/create').send({
       title: 'First Post',
       content: `
         <h1>My first Post is Really Sick</h1>
         <p>Yeah, it really is!</p>
       `,
     });
-    const response = await testClient(posts).put('/posts').send({
-      id: 1,
+    const response = await testClient(postMock).put('/posts').send({
       title: 'First Post',
       content: '<h1>new content</h1>',
     });
@@ -92,7 +92,7 @@ describe('/api/posts', () => {
       username: 'vinicius',
       password: 'coolPassword',
     });
-    await testClient(posts).post('/posts').send({
+    await testClient(createPost).post('/posts/create').send({
       title: 'First Post',
       content: `
         <h1>My first Post is Really Sick</h1>
@@ -114,7 +114,7 @@ describe('/api/posts', () => {
       username: 'vinicius',
       password: 'coolPassword',
     });
-    await testClient(posts).post('/posts').send({
+    await testClient(createPost).post('/posts/create').send({
       title: 'First Post',
       content: `
         <h1>My first Post is Really Sick</h1>
@@ -130,5 +130,21 @@ describe('/api/posts', () => {
     expect(response.status).toBe(200);
     expect(createdPost.content).toBe(response.body.content);
     expect(createdPost.title).toBe(response.body.title);
+  });
+  it('retrieves all posts', async () => {
+    await User.create({
+      username: 'vinicius',
+      password: 'coolPassword',
+    });
+    await testClient(createPost).post('/posts/create').send({
+      title: 'First Post',
+      content: `
+        <h1>My first Post is Really Sick</h1>
+        <p>Yeah, it really is!</p>
+      `,
+    });
+    const response = await testClient(posts).get('/posts/');
+    expect(response.status).toBe(200);
+    expect(response.body.posts.length).toBe(1);
   });
 });

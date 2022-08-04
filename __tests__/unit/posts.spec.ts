@@ -4,6 +4,7 @@ import connection from '../../lib/redis';
 import truncateTables from '../utils/truncateTables';
 import testClient from '../utils/test-client';
 import posts from '../../pages/api/posts';
+import post from '../../pages/api/posts/[id]';
 import db from '../../db/models';
 
 const { Post, User } = db;
@@ -11,6 +12,13 @@ const { Post, User } = db;
 jest.mock('../utils/test-client');
 
 describe('/api/posts', () => {
+  const postMock = jest.fn();
+  postMock.mockImplementation((req, res) => {
+    req.query = {
+      id: 1,
+    };
+    return post(req, res);
+  });
   beforeEach(async () => {
     await truncateTables();
     await connection.flushall();
@@ -78,5 +86,49 @@ describe('/api/posts', () => {
     });
     expect(response.status).toBe(200);
     expect(createdPost.content).toBe('<h1>new content</h1>');
+  });
+  it('allows user to delete a post', async () => {
+    await User.create({
+      username: 'vinicius',
+      password: 'coolPassword',
+    });
+    await testClient(posts).post('/posts').send({
+      title: 'First Post',
+      content: `
+        <h1>My first Post is Really Sick</h1>
+        <p>Yeah, it really is!</p>
+      `,
+    });
+    const response = await testClient(postMock).delete('/posts/1');
+    const createdPost = await Post.findOne({
+      where: {
+        title: 'First Post',
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(createdPost).toBe(null);
+    expect(response.body.message).toMatch(/the post 1 has been deleted successfully/i);
+  });
+  it('allows user to get a post', async () => {
+    await User.create({
+      username: 'vinicius',
+      password: 'coolPassword',
+    });
+    await testClient(posts).post('/posts').send({
+      title: 'First Post',
+      content: `
+        <h1>My first Post is Really Sick</h1>
+        <p>Yeah, it really is!</p>
+      `,
+    });
+    const response = await testClient(postMock).get('/api/posts/1');
+    const createdPost = await Post.findOne({
+      where: {
+        title: 'First Post',
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(createdPost.content).toBe(response.body.content);
+    expect(createdPost.title).toBe(response.body.title);
   });
 });

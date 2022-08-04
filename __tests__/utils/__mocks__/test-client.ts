@@ -3,7 +3,7 @@ import { apiResolver } from 'next/dist/server/api-utils/node';
 import request from 'supertest';
 
 const testClient = (handler: any) => {
-  const listener: RequestListener = (req, res) => {
+  const listener: RequestListener = (req: any, res) => {
     req.session = {
       user: {
         username: 'vinicius',

@@ -2,7 +2,7 @@ const { config } = require('dotenv')
 const { resolve } = require('path');
 
 config({
-  path: resolve(process.cwd(), './.test.env'),
+  path: resolve(process.cwd(), './.env.development'),
 });
 
 console.log(process.env.DATABASE_URL)

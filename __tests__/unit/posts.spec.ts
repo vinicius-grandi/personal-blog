@@ -109,6 +109,29 @@ describe('/api/posts', () => {
     expect(createdPost).toBe(null);
     expect(response.body.message).toMatch(/the post 1 has been deleted successfully/i);
   });
+  it('should not delete a post when unauthenticated', async () => {
+    const { default: actualTestClient } = jest.requireActual('../utils/test-client');
+    await User.create({
+      username: 'vinicius',
+      password: 'coolPassword',
+    });
+    await testClient(createPost).post('/posts/create').send({
+      title: 'First Post',
+      content: `
+        <h1>My first Post is Really Sick</h1>
+        <p>Yeah, it really is!</p>
+      `,
+    });
+    const response = await actualTestClient(postMock).delete('/posts/1');
+    const createdPost = await Post.findOne({
+      where: {
+        title: 'First Post',
+      },
+    });
+    expect(response.status).toBe(200);
+    expect(createdPost).toBe(null);
+    expect(response.body.message).toMatch(/the post 1 has been deleted successfully/i);
+  });
   it('allows user to get a post', async () => {
     await User.create({
       username: 'vinicius',

@@ -17,18 +17,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.json(post);
       }
       case 'DELETE': {
-        const postId = await Post.destroy({
-          where: { id },
-        });
-        return res.json({ message: `The post ${postId} has been deleted successfully` });
+        if (req.session && 'user' in req.session) {
+          const postId = await Post.destroy({
+            where: { id },
+          });
+          return res.json({ message: `The post ${postId} has been deleted successfully` });
+        }
+        return res.status(401).json({ message: 'unauthorized' });
       }
       case 'PUT': {
-        const post = await Post.findByPk(id);
-        await post.update({
-          title,
-          content,
-        });
-        return res.json(post);
+        if (req.session && 'user' in req.session) {
+          const post = await Post.findByPk(id);
+          await post.update({
+            title,
+            content,
+          });
+          return res.json(post);
+        }
+        return res.status(401).json({ message: 'unauthorized' });
       }
       default:
         return res.status(404).json({ message: 'this method is not supported' });
